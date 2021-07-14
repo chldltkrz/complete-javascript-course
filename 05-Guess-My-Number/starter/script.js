@@ -37,7 +37,7 @@ document.querySelector('.check').addEventListener(
 
         if(!score){
             document.querySelector('.message').textContent = 'Game lost';
-            document.querySelector('.check').style = '';
+            document.querySelector('.check').style.display = 'none';
         }
     }
 );
