@@ -74,3 +74,22 @@ const currencies = new Map([
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
+
+//array has some methods like
+// arr.slice(2)
+// arr.splice will mutate the array! etc
+
+const displayMovements = function (movement) {
+  containerMovements.innerHTML = '';
+  movement.forEach(function (mov, i, _) {
+    const type = mov > 0 ? 'deposit' : 'withdrawal';
+    const html = `
+    <div class="movements__row">
+      <div class="movements__type movements__type--${type}">${i} ${type}</div>
+      <div class="movements__value">${mov}$</div>
+    </div>`;
+
+    containerMovements.insertAdjacentHTML('afterbegin', html);
+  });
+};
+displayMovements(account1.movements);
