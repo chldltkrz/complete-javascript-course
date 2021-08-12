@@ -93,3 +93,54 @@ const displayMovements = function (movement) {
   });
 };
 displayMovements(account1.movements);
+
+// return username for each user in account arr
+const createUsername = function (accs) {
+  accs.forEach(function (acc) {
+    acc.username = acc.owner
+      .toLowerCase()
+      .split(' ')
+      .map(val => val[0])
+      .join('');
+  });
+};
+
+createUsername(accounts);
+console.log(accounts);
+
+// //acc is like a snowball
+// //second argment of reduce is init value for acc;
+// const balance = movements.reduce(function (acc, cur) {
+//   return acc + cur;
+// }, 0);
+// console.log(balance);
+
+const calcDisplayBalance = function (movements) {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${balance} EUR`;
+};
+calcDisplayBalance(account1.movements);
+
+const calcDisplaySummary = function (movements) {
+  const incomes = movements
+    .filter(mov => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumIn.textContent = incomes;
+
+  const outcomes = movements
+    .filter(mov => mov < 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumOut.textContent = `${Math.abs(outcomes)}`;
+
+  const interest = movements
+    .filter(mov => mov > 0)
+    .map(deposit => deposit * 0.012)
+    .filter(mov => mov > 1)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumInterest.textContent = interest;
+};
+calcDisplaySummary(account1.movements);
+
+//find method only return first condition-met value as a value! not an array!
+const account = accounts.find(acc => acc.owner === 'Jessica Davis');
+console.log(account);
