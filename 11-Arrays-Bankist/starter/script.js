@@ -92,7 +92,36 @@ const displayMovements = function (movement) {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-displayMovements(account1.movements);
+// //acc is like a snowball
+// //second argment of reduce is init value for acc;
+// const balance = movements.reduce(function (acc, cur) {
+//   return acc + cur;
+// }, 0);
+// console.log(balance);
+
+const calcDisplayBalance = function (acc) {
+  acc.balance = acc.movements.reduce((acco, mov) => acco + mov, 0);
+  labelBalance.textContent = `${acc.balance} EUR`;
+};
+
+const calcDisplaySummary = function (acc) {
+  const incomes = acc.movements
+    .filter(mov => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumIn.textContent = incomes;
+
+  const outcomes = acc.movements
+    .filter(mov => mov < 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumOut.textContent = `${Math.abs(outcomes)}`;
+
+  const interest = acc.movements
+    .filter(mov => mov > 0)
+    .map(deposit => (deposit * acc.interestRate)/100)
+    .filter(mov => mov > 1)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumInterest.textContent = interest;
+};
 
 // return username for each user in account arr
 const createUsername = function (accs) {
@@ -108,39 +137,54 @@ const createUsername = function (accs) {
 createUsername(accounts);
 console.log(accounts);
 
-// //acc is like a snowball
-// //second argment of reduce is init value for acc;
-// const balance = movements.reduce(function (acc, cur) {
-//   return acc + cur;
-// }, 0);
-// console.log(balance);
+//refactoring UI refresh
+const updateUI = function(account){
+  //display movement
+  displayMovements(account.movements);
+  //display balance
+  calcDisplayBalance(account);
+  //display summary
+  calcDisplaySummary(account);
+}
 
-const calcDisplayBalance = function (movements) {
-  const balance = movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${balance} EUR`;
-};
-calcDisplayBalance(account1.movements);
+//EventHander for login function
+let curAccount;
+btnLogin.addEventListener('click', function(e){
+  // following method will prevent form to stop submitting
+  e.preventDefault();
+  curAccount = accounts.find(acc=>acc.username === inputLoginUsername.value);
+  if(curAccount?.pin === Number(inputLoginPin.value)){
+    //displayUI and welcome Message
+    labelWelcome.textContent = `Welcome Back! ${curAccount.owner.split(' ')[0]}`;
+    containerApp.style.opacity = 100;
+    //clear the input fields
+    inputLoginUsername.value = inputLoginPin.value = '';
+    //to release focus on this object
+    inputLoginPin.blur();
 
-const calcDisplaySummary = function (movements) {
-  const incomes = movements
-    .filter(mov => mov > 0)
-    .reduce((acc, mov) => acc + mov, 0);
-  labelSumIn.textContent = incomes;
+    updateUI(curAccount);
 
-  const outcomes = movements
-    .filter(mov => mov < 0)
-    .reduce((acc, mov) => acc + mov, 0);
-  labelSumOut.textContent = `${Math.abs(outcomes)}`;
+  }
+});
 
-  const interest = movements
-    .filter(mov => mov > 0)
-    .map(deposit => deposit * 0.012)
-    .filter(mov => mov > 1)
-    .reduce((acc, mov) => acc + mov, 0);
-  labelSumInterest.textContent = interest;
-};
-calcDisplaySummary(account1.movements);
+// implementing transfer function
+btnTransfer.addEventListener('click', function(e){
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const receiverAcc = accounts.find(acc => acc.username === inputTransferTo.value);
 
-//find method only return first condition-met value as a value! not an array!
-const account = accounts.find(acc => acc.owner === 'Jessica Davis');
-console.log(account);
+  inputTransferTo.value = inputTransferTo.value = '';
+  if(amount > 0 && curAccount.balance >= amount && receiverAcc?.username !== curAccount.username && receiverAcc){
+     //add negative movement to sending user
+    curAccount.movements.push(-amount);
+    //add positive movement to receiving user
+    receiverAcc.movements.push(amount);
+
+    updateUI(curAccount);
+  }
+});
+
+// //find method only return first condition-met value as a value! not an array!
+// const account = accounts.find(acc => acc.owner === 'Jessica Davis');
+// console.log(account);
+
