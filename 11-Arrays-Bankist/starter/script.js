@@ -117,7 +117,7 @@ const calcDisplaySummary = function (acc) {
 
   const interest = acc.movements
     .filter(mov => mov > 0)
-    .map(deposit => (deposit * acc.interestRate)/100)
+    .map(deposit => (deposit * acc.interestRate) / 100)
     .filter(mov => mov > 1)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumInterest.textContent = interest;
@@ -138,24 +138,26 @@ createUsername(accounts);
 console.log(accounts);
 
 //refactoring UI refresh
-const updateUI = function(account){
+const updateUI = function (account) {
   //display movement
   displayMovements(account.movements);
   //display balance
   calcDisplayBalance(account);
   //display summary
   calcDisplaySummary(account);
-}
+};
 
 //EventHander for login function
 let curAccount;
-btnLogin.addEventListener('click', function(e){
+btnLogin.addEventListener('click', function (e) {
   // following method will prevent form to stop submitting
   e.preventDefault();
-  curAccount = accounts.find(acc=>acc.username === inputLoginUsername.value);
-  if(curAccount?.pin === Number(inputLoginPin.value)){
+  curAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
+  if (curAccount?.pin === Number(inputLoginPin.value)) {
     //displayUI and welcome Message
-    labelWelcome.textContent = `Welcome Back! ${curAccount.owner.split(' ')[0]}`;
+    labelWelcome.textContent = `Welcome Back! ${
+      curAccount.owner.split(' ')[0]
+    }`;
     containerApp.style.opacity = 100;
     //clear the input fields
     inputLoginUsername.value = inputLoginPin.value = '';
@@ -163,19 +165,25 @@ btnLogin.addEventListener('click', function(e){
     inputLoginPin.blur();
 
     updateUI(curAccount);
-
   }
 });
 
 // implementing transfer function
-btnTransfer.addEventListener('click', function(e){
+btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
   const amount = Number(inputTransferAmount.value);
-  const receiverAcc = accounts.find(acc => acc.username === inputTransferTo.value);
+  const receiverAcc = accounts.find(
+    acc => acc.username === inputTransferTo.value
+  );
 
   inputTransferTo.value = inputTransferTo.value = '';
-  if(amount > 0 && curAccount.balance >= amount && receiverAcc?.username !== curAccount.username && receiverAcc){
-     //add negative movement to sending user
+  if (
+    amount > 0 &&
+    curAccount.balance >= amount &&
+    receiverAcc?.username !== curAccount.username &&
+    receiverAcc
+  ) {
+    //add negative movement to sending user
     curAccount.movements.push(-amount);
     //add positive movement to receiving user
     receiverAcc.movements.push(amount);
@@ -188,3 +196,50 @@ btnTransfer.addEventListener('click', function(e){
 // const account = accounts.find(acc => acc.owner === 'Jessica Davis');
 // console.log(account);
 
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputLoanAmount.value);
+
+  if (amount > 0 && curAccount.movements.some(mov => mov > amount / 10)) {
+    // add the movement to the curAccount
+    curAccount.movements.push(amount);
+    updateUI(curAccount);
+  }
+  inputLoanAmount.value = '';
+});
+
+// findIndex method will return index of first matching element!
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  if (
+    inputCloseUsername.value === curAccount.username &&
+    Number(inputClosePin.value) === curAccount.pin
+  ) {
+    const index = accounts.findIndex(
+      acc => acc.username === curAccount.username
+    );
+    //Delete Account
+    accounts.splice(index, 1);
+
+    //Hide UI
+    containerApp.style.opacity = 0;
+  }
+  inputClosePin.value = inputCloseUsername.value = '';
+});
+
+// some && every method!
+// EQUALITY following line will check if only specific value is in iterable!
+console.log(movements.includes(-130));
+// how to pick deposit movements?
+// CONDITION    return true if there is anyvalue matching along callback function
+const anyDeposits = movements.some(mov => mov > 0);
+console.log(anyDeposits);
+
+// EVERY Method will return true only when every element meet the condition
+
+// flat && flatMap method!
+// flat nested array to n depth deep!
+const arr = [[1, 2, 3], [5, 6, 7], 4, 8];
+console.log(arr.flat());
+// console.log(arr.flat(n)));
