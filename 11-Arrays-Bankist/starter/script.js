@@ -78,10 +78,15 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 //array has some methods like
 // arr.slice(2)
 // arr.splice will mutate the array! etc
-
-const displayMovements = function (movement) {
+//08/18  adding sorting functionality
+// add sort parameter and set it to false, then activate when sort button is clicked
+const displayMovements = function (movement, sort = false) {
   containerMovements.innerHTML = '';
-  movement.forEach(function (mov, i, _) {
+
+  //slice method will make copy of original array!
+  const movs = sort ? movement.slice().sort((a, b) => a - b) : movement;
+
+  movs.forEach(function (mov, i, _) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const html = `
     <div class="movements__row">
@@ -228,6 +233,14 @@ btnClose.addEventListener('click', function (e) {
   inputClosePin.value = inputCloseUsername.value = '';
 });
 
+// this variable will keep track of sorted state
+// if button is clicked the value is fliped!
+let sorted = false;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayMovements(curAccount.movements, !sorted);
+  sorted = !sorted;
+});
 // some && every method!
 // EQUALITY following line will check if only specific value is in iterable!
 console.log(movements.includes(-130));
@@ -242,4 +255,91 @@ console.log(anyDeposits);
 // flat nested array to n depth deep!
 const arr = [[1, 2, 3], [5, 6, 7], 4, 8];
 console.log(arr.flat());
-// console.log(arr.flat(n)));
+// console.log(arr.flat(n))); will flat n depth deep array into flat array
+
+const owner = ['j', 'z', 'a', 'm'];
+// sort will mutate the original array! be Careful to use
+// sort inside value along to alphabetical order
+console.log(owner.sort());
+
+// assumethere is movement arrays
+console.log(movements);
+// sort the array in ascending order with bubble sorting algorithm(i guess)
+// takes callback function, but don know how it works, need to search
+movements.sort((a, b) => {
+  if (a > b) return 1;
+  if (b > a) return -1;
+});
+
+//creating filling array in various way
+//traditional way
+console.log([1, 2, 3, 4, 5, 6, 7]);
+console.log(new Array(1, 2, 3, 4, 5, 6, 7));
+
+//this will create an array of size of 7 with empty contents
+const x = new Array(7);
+//array made by above method can call only one function that is "FILL",
+//following map method wont work on the array
+x.map(() => 5);
+//following call will fill empty array with value of 1
+x.fill(1);
+//fill(value, start index, end index)
+//this fill method can fill not only empty array but also already filled array
+
+//but we have Array.from method to create new array with mapping function
+const y = Array.from({ length: 7 }, (cur, i) => i + 1);
+console.log(y);
+
+//how much deposit is took in place across the bank?
+const bankDepositSum = accounts
+  .flatMap(acc => acc.movements)
+  .filter(mov => mov > 0)
+  .reduce((acc, cur) => acc + cur, 0);
+console.log(bankDepositSum);
+
+//how many deposit that is at least 1000?
+const numDeposit1000 = accounts
+  .flatMap(acc => acc.movements)
+  .filter(mov => mov >= 1000).length;
+console.log(numDeposit1000);
+
+const numDeposit1000reduce = accounts
+  .flatMap(mov => mov.movements)
+  .reduce((acc, cur) => {
+    if (cur >= 1000) return ++acc;
+    else return acc;
+  }, 0);
+console.log(numDeposit1000reduce);
+
+// how to count deposit and withdrawal at the same time?
+const sums = accounts
+  .flatMap(acc => acc.movements)
+  .reduce(
+    (sums, cur) => {
+      cur > 0 ? (sums.deposit += cur) : (sums.withdrawal += cur);
+      return sums;
+    },
+    {
+      deposit: 0,
+      withdrawal: 0,
+    }
+  );
+console.log(sums);
+
+//this is a nice title -> This Is a Nice title
+//function to convert prev to later
+const convertTitlecase = function (title) {
+  const expected = ['a', 'an', 'the', 'but', 'or', 'on', 'in', 'with'];
+
+  const titleCase = title
+    .toLowerCase()
+    .split(' ')
+    .map(word =>
+      !expected.includes(word) ? word[0].toUpperCase() + word.slice(1) : word
+    );
+  console.log(titleCase);
+};
+convertTitlecase('this is a nice title');
+convertTitlecase('this is a LONG title but not too long');
+convertTitlecase('and here is another title with an EXAMPlE');
+//      !expected.includes(word);
