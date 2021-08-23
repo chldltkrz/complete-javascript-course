@@ -88,13 +88,13 @@ const displayMovements = function (movements, sort = false) {
 
   movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
-
+    // 210823 movement to have exactly only 2 decimal points
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
-        <div class="movements__value">${mov}€</div>
+        <div class="movements__value">${mov.toFixed(2)}€</div>
       </div>
     `;
 
@@ -104,19 +104,19 @@ const displayMovements = function (movements, sort = false) {
 
 const calcDisplayBalance = function (acc) {
   acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${acc.balance}€`;
+  labelBalance.textContent = `${acc.balance.toFixed(2)}€`;
 };
 
 const calcDisplaySummary = function (acc) {
   const incomes = acc.movements
     .filter(mov => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumIn.textContent = `${incomes}€`;
+  labelSumIn.textContent = `${incomes.toFixed(2)}€`;
 
   const out = acc.movements
     .filter(mov => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumOut.textContent = `${Math.abs(out)}€`;
+  labelSumOut.textContent = `${Math.abs(out).toFixed(2)}€`;
 
   const interest = acc.movements
     .filter(mov => mov > 0)
@@ -126,7 +126,7 @@ const calcDisplaySummary = function (acc) {
       return int >= 1;
     })
     .reduce((acc, int) => acc + int, 0);
-  labelSumInterest.textContent = `${interest}€`;
+  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
 };
 
 const createUsernames = function (accs) {
@@ -206,7 +206,8 @@ btnTransfer.addEventListener('click', function (e) {
 btnLoan.addEventListener('click', function (e) {
   e.preventDefault();
 
-  const amount = Number(inputLoanAmount.value);
+  // 210823 this will round down the decimal part and coerce to number
+  const amount = Math.floor(inputLoanAmount.value);
 
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
     // Add movement
@@ -251,3 +252,74 @@ btnSort.addEventListener('click', function (e) {
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
+
+//___________________________NUMBERS____________________________
+// Numbers are represented as floating decimal in JS
+
+// following is true
+console.log(23 === 23.0);
+
+// THIS will be false because of floating point expression
+console.log(0.1 + 0.2 === 0.3);
+
+// string -> number
+console.log(Number('23'));
+console.log(+'23');
+
+// parsing from string to number
+// string can contain extra string! it will automatically filter!
+// but the string should start with number!
+
+// The parseInt method will take second argument that is radix,
+// parseInt is global Function, which means it will work without Number namespace
+console.log(Number.parseInt('30px', 10));
+console.log(Number.parseFloat('2.5rem'));
+console.log(Number.parseInt('2.5rem'));
+
+// isNaN function(Not a Number)
+console.log(Number.isNaN(20));
+console.log(Number.isNaN('20'));
+console.log(Number.isNaN(+'20x'));
+
+// isFinite is the best way to check if the value is number but not string
+console.log(Number.isFinite('20'));
+console.log(Number.isFinite(20));
+
+console.log(Number.isInteger(20.0));
+console.log(Number.isInteger(20));
+
+//___________________________MATH__________________________________
+console.log(Math.sqrt(25)); // = 5
+// below will calculate cube!
+console.log(25 ** (1 / 2)); // = 5
+
+// max, min will support conversion but not parsing
+console.log(Math.max(5, 1, 46, 2, '24', 35));
+console.log(Math.min(5, 1, 46, 2, '24', 35));
+
+// shown before, random number generation
+console.log(Math.trunc(Math.random() * 6 + 1));
+
+// rounding Integers
+// trunc will remove decimal part always
+console.log(Math.trunc(23.3));
+
+// round will round to the nearest integer
+// ceil will round up to the nearest integer
+// floor will round udownto the nearest integer
+console.log(Math.round(123.89));
+
+// toFixed method?
+console.log((2.7).toFixed(0)); // will return string!
+console.log(+(2.7).toFixed(0)); // will return NUmber with simple trick
+
+// remainder operation!(%)
+// usually used to get if number is odd or even number
+console.log(5 % 3);
+
+// change color of the row
+labelBalance.addEventListener('click', function () {
+  [...document.querySelectorAll('.movements__row')].forEach(function (row, i) {
+    if (i % 2 === 0) row.style.backgroundColor = 'orangered';
+  });
+});
