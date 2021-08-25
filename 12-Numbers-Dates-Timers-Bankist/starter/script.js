@@ -23,7 +23,7 @@ const account1 = {
     '2020-05-08T14:11:59.604Z',
     '2020-05-27T17:01:17.194Z',
     '2020-07-11T23:36:17.929Z',
-    '2020-07-12T10:51:36.790Z',
+    '2021-08-22T12:01:20.894Z',
   ],
   currency: 'EUR',
   locale: 'pt-PT', // de-DE
@@ -43,7 +43,7 @@ const account2 = {
     '2020-02-05T16:33:06.386Z',
     '2020-04-10T14:43:26.374Z',
     '2020-06-25T18:49:59.371Z',
-    '2020-07-26T12:01:20.894Z',
+    '2021-08-22T12:01:20.894Z',
   ],
   currency: 'USD',
   locale: 'en-US',
@@ -81,19 +81,44 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 // Functions
 
-const displayMovements = function (movements, sort = false) {
+// 210825
+const formatMovementDate = function (date) {
+  const calcDaysPassed = (date1, date2) =>
+    Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+
+  const daysPassed = calcDaysPassed(new Date(), date);
+  console.log(daysPassed);
+
+  if (daysPassed === 0) return 'Today';
+  if (daysPassed === 1) return 'YesterDay';
+  if (daysPassed <= 7) return `${daysPassed} days ago`;
+  else {
+    const day = `${date.getDate()}`.padStart(2, '0');
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+};
+const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = '';
 
-  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  const movs = sort
+    ? acc.movements.slice().sort((a, b) => a - b)
+    : acc.movements;
 
   movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
+
+    const date = new Date(acc.movementsDates[i]);
+    const displayDate = formatMovementDate(date);
+
     // 210823 movement to have exactly only 2 decimal points
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
+        <div class="movements__date">${displayDate}</div>
         <div class="movements__value">${mov.toFixed(2)}€</div>
       </div>
     `;
@@ -142,7 +167,7 @@ createUsernames(accounts);
 
 const updateUI = function (acc) {
   // Display movements
-  displayMovements(acc.movements);
+  displayMovements(acc);
 
   // Display balance
   calcDisplayBalance(acc);
@@ -154,6 +179,11 @@ const updateUI = function (acc) {
 ///////////////////////////////////////
 // Event handlers
 let currentAccount;
+
+// 210825 fake Always Login menu
+currentAccount = account1;
+updateUI(currentAccount);
+containerApp.style.opacity = 100;
 
 btnLogin.addEventListener('click', function (e) {
   // Prevent form from submitting
@@ -170,6 +200,16 @@ btnLogin.addEventListener('click', function (e) {
       currentAccount.owner.split(' ')[0]
     }`;
     containerApp.style.opacity = 100;
+
+    const now = new Date();
+    labelDate.textContent = now; // As of Wed Aug 25 2021 14:12:48 GMT+0900 (한국 표준시)
+    // but need to print day/month/year format
+    const day = `${now.getDate()}`.padStart(2, '0'); // add padding of 0 if length is 1
+    const month = `${now.getMonth() + 1}`.padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = `${now.getHours()}`.padStart(2, '0');
+    const min = `${now.getMinutes()}`.padStart(2, '0');
+    labelDate.textContent = `${day}/${month}/${year}, ${hours}:${min}`;
 
     // Clear input fields
     inputLoginUsername.value = inputLoginPin.value = '';
@@ -198,6 +238,10 @@ btnTransfer.addEventListener('click', function (e) {
     currentAccount.movements.push(-amount);
     receiverAcc.movements.push(amount);
 
+    // Add Transfer Date! 082125
+    currentAccount.movementsDates.push(new Date().toISOString());
+    receiverAcc.movementsDates.push(new Date().toISOString());
+
     // Update UI
     updateUI(currentAccount);
   }
@@ -212,6 +256,9 @@ btnLoan.addEventListener('click', function (e) {
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
     // Add movement
     currentAccount.movements.push(amount);
+
+    // Add Transfer Date! 082125
+    currentAccount.movementsDates.push(new Date().toISOString());
 
     // Update UI
     updateUI(currentAccount);
@@ -245,7 +292,7 @@ btnClose.addEventListener('click', function (e) {
 let sorted = false;
 btnSort.addEventListener('click', function (e) {
   e.preventDefault();
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(currentAccount, !sorted);
   sorted = !sorted;
 });
 
@@ -323,3 +370,55 @@ labelBalance.addEventListener('click', function () {
     if (i % 2 === 0) row.style.backgroundColor = 'orangered';
   });
 });
+
+// Bigint
+console.log(2 ** 53 - 1); // is the MAX number JS can support before ES2020
+console.log(12987316987346918275691827356012875n); // this n at the end of the number will make whole number into bigInt
+console.log(BigInt(1234164513461243614513462136)); // or can use BigInt method
+
+// BigInt Operation
+console.log(1000n + 10000n);
+const huge = 123412346247356856814123451541n;
+const num = 23;
+// console.log(huge * num); // operation of Bigint with regular number wont work!!
+
+// but! comparison and plus with string will work
+console.log(20n > 15); ///true
+console.log(20n === 20); // false
+console.log(20n == 20); // true
+console.log(20n == '20'); // true
+
+// Math operation wont work with BigInt
+// console.log(Math.sqrt(huge))
+
+// Dates
+// Creating date, there are four ways
+const date1 = new Date();
+console.log(date1);
+const date2 = new Date('Aug 25 2021 13:35:01');
+const date3 = new Date('December 24, 2021'); // but not a good idea to make date like this
+const date4 = new Date(2037, 10, 19, 15, 34, 5); // 2037-11-25 15:34:05
+const date5 = new Date(1234567); // in milisecond from 1970 jen 1st
+
+// Working with Dates,
+const future = new Date(3030, 12, 2, 1, 1, 1);
+console.log(future);
+// there are also setter functions!
+console.log(future.getFullYear());
+console.log(future.getMonth());
+console.log(future.getDate());
+console.log(future.getDay()); // ... etc to second,
+console.log(future.getTime()); // will return total time passed in milisecond,
+console.log(Date.now()); // will return total time passed in milisecond,
+
+// Date Operation
+// Assume I have date below
+const dateF = new Date(2037, 10, 19, 15, 34, 5);
+console.log(Number(dateF)); // this will return total passed in milisecond!
+console.log(+dateF); // this will return total passed in milisecond!
+
+//then I can do operation with the date value in milisecond
+const calcDaysPassed = (date1, date2) =>
+  Math.abs(date2 - date1) / (1000 * 60 * 60 * 24); // milisecond -> (1000 milisecond)second -> (60seconds) minute -> (60mins) hour -> (24hours) days
+
+console.log(calcDaysPassed(new Date(2037, 4, 14), new Date(2037, 4, 24)));
