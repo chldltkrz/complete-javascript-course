@@ -386,3 +386,70 @@ const headerObserver = new IntersectionObserver(stickyNav, {
 });
 // DO Observing on header element
 headerObserver.observe(header);
+
+// 210903 Revealing elements on Scroll
+// Effects itself are comming crom CSS, and adding them by adding class using JS
+
+// THere is CSS class called '.section--hidden', which makes html tag invisible(opacity 0) and go down little bit(transform translateY(8rem))
+/* HOw IT WORK
+   1. By adding this class to each section, will be invisible
+   2. as scroll reaches each section, IntersectionObserver will remove the hidden class 
+*/
+
+// Reveal Section
+// select All sections in the page
+const allSection = document.querySelectorAll('.section');
+
+// callback Function that removes the 'section--hidden' class for each section
+// then release the observing
+const revealSection = function (entires, observer) {
+  const [entry] = entires;
+  if (!entry.isIntersecting) return;
+  entry.target.classList.remove('section--hidden');
+  observer.unobserve(entry.target);
+};
+
+// for all viewport, if observing section takes 15% of viewport it will tigger callback function
+const sectionObserver = new IntersectionObserver(revealSection, {
+  root: null,
+  threshold: 0.15,
+});
+
+// add observer to each section
+allSection.forEach(function (section) {
+  sectionObserver.observe(section);
+  section.classList.add('section--hidden');
+});
+
+// 210906 LazyLoading Image!
+// Strategy is that load low resolution image when loading page and when meet the intersection, load the full image
+// So need 2 images for each img tag
+// We will use Dataset JS
+// blur is the css effect fyi - filter: blur(20px)
+
+// select tag that has certain CSS property
+const imgTargets = document.querySelectorAll('img[data-src]');
+
+const loadImg = function (entries, observer) {
+  const [entry] = entries;
+
+  if (!entry.isIntersecting) return;
+
+  // If intersecting, then replace image with the data-src
+  entry.target.src = entry.target.dataset.src;
+  // Need to remove the filter out
+  entry.target.addEventListener('load', function () {
+    entry.target.classList.remove('lazy-img');
+  });
+  observer.unobserve(entry.target);
+};
+const imgObserver = new IntersectionObserver(loadImg, {
+  root: null,
+  threshold: 0,
+  // let user not notice the lazy loading
+  rootMargin: '200px',
+});
+
+imgTargets.forEach(img => imgObserver.observe(img));
+
+// 210908
