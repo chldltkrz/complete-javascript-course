@@ -72,3 +72,53 @@ Array.prototype.unique = function () {
 };
 
 console.log(arr.unique());
+
+// 210914 ES6 Class
+/* 
+  Class in JS is not working like Class in other language, it is just synthetic sugar, 
+*/
+
+// Class Expression
+// const PersonCl = class{
+
+// }
+
+// Class Decleration
+class PersonCl {
+  constructor(firstName, birthYear) {
+    this.firstName = firstName;
+    this.birthYear = birthYear;
+  }
+  // functions are prototypal inheritance, will not be in each object but in prototype
+  get age() {
+    return 2037 - this.birthYear;
+  }
+  calcAge() {
+    console.log(2016 - this.birthYear);
+  }
+}
+
+const jessica = new PersonCl('Jessica', 1414);
+jessica.calcAge();
+
+// 1. classes are not hoisted
+// 2. classes are first class citizens
+// 3. body of class is executed in strict mode
+
+// getter and setter
+// getter and setter is useful to do data validation
+const account = {
+  owner: 'jonas',
+  movement: [200, 500, 400, -2300],
+
+  get latest() {
+    return this.movement.slice(-1).pop();
+  },
+  // setter will take exactly one parameter
+  set latest(movement) {
+    this.movement.push(movement);
+  },
+};
+// use getter as property but not as function call
+console.log(account.latest);
+console.log((account.latest = 50));
