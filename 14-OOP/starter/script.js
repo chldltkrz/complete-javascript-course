@@ -43,4 +43,4 @@ console.log(Person.prototype.isPrototype(Person)); //false
 Person.prototype.species = 'Homo Sapiens';
 console.log(jonas);
 console.log(jonas.hasOwnProperty('firstname')); //true
-console.log(jonas.hasOwnProperty('species')); //false -> because it just has access to prototype not in object
+console.log(jonas.hasOwnProperty('species')); //false -> because it just has access to prototype
