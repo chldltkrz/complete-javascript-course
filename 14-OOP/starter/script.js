@@ -84,7 +84,7 @@ console.log(arr.unique());
 // }
 
 // Class Decleration
-class PersonCl {
+class PersonCL {
   constructor(firstName, birthYear) {
     this.firstName = firstName;
     this.birthYear = birthYear;
@@ -102,7 +102,7 @@ class PersonCl {
   }
 }
 
-const jessica = new PersonCl('Jessica', 1414);
+const jessica = new PersonCL('Jessica', 1414);
 jessica.calcAge();
 
 // 1. classes are not hoisted
@@ -181,3 +181,50 @@ Student.prototype.introduce = function () {
 const mike = new Student('Mike', 2020, 'CS');
 console.log(mike);
 mike.introduce();
+
+// 210916 inheritance between classes ES6 Class & Object.create
+class StudentCL extends PersonCL {
+  constructor(fullName, birthYear, course) {
+    // Always need to happen first because it will make its 'this' keyword
+    super(fullName, birthYear);
+    // if no Property need below, than no constructor function needed!
+    this.course = course;
+  }
+}
+// need constructor
+const martha = new StudentCL('Martha', 2012, 'Computer Science');
+// no need constructor
+// const martha = new StudentCL('Martha', 2012);
+
+martha.calcAge();
+
+// Object.create
+const StudentProto = Object.create(PersonProto);
+const jay = Object.create(StudentProto);
+
+// 210917 Class Example!
+
+class Account {
+  constructor(owner, currency, pin) {
+    this.owner = owner;
+    this.currency = currency;
+    this.pin = pin;
+    // ENCAPSULATION!
+    // TO protect Actident of change or loss of data
+    // protected property -> its just convention, no actual protection provided
+    // this._movement = [];
+    this.movement = [];
+    this.locale = navigator.language;
+  }
+  // we call these wrappers API,
+  deposit(val) {
+    this._movement.push(val);
+  }
+  withdraw(val) {
+    this.deposit(-val);
+  }
+}
+
+const acc = new Account('Jonas', 'EUR', 111);
+acc.movement.push(250); // this works but mind that make setter instead!
+console.log(acc);
