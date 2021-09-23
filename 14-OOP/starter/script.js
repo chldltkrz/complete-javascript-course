@@ -205,23 +205,37 @@ const jay = Object.create(StudentProto);
 // 210917 Class Example!
 
 class Account {
+  // 210923
+  // Public Field / Private Field / Public Method / Private Method (with static version)
+
+  // public Field
+  locale = navigator.language;
+  // _movement = [];
+
+  // private Field, but it wont be supported by all browser, but google Chrome!
+  #movements = [];
+  #pin;
+
   constructor(owner, currency, pin) {
     this.owner = owner;
     this.currency = currency;
-    this.pin = pin;
+    this.#pin = pin;
     // ENCAPSULATION!
     // TO protect Actident of change or loss of data
     // protected property -> its just convention, no actual protection provided
     // this._movement = [];
-    this.movement = [];
     this.locale = navigator.language;
   }
-  // we call these wrappers API,
+  // we call these wrappers API, and Public Methods since they are open to public
   deposit(val) {
     this._movement.push(val);
   }
   withdraw(val) {
     this.deposit(-val);
+  }
+  // Private Method -> this wont work on all browser
+  #approveLoan(val) {
+    return true;
   }
 }
 
