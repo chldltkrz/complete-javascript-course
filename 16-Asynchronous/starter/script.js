@@ -215,9 +215,10 @@ const get3Countries = async function(c1, c2, c3){
     const data = await Promise.all([ getJSON(`https://restcountries.com/v2/name/${c1}`),
                                       getJSON(`https://restcountries.com/v2/name/${c2}`),
                                       getJSON(`https://restcountries.com/v2/name/${c3}`)]);
-    //Promise.all will print all the value of the promises
-    //Promise.race will print only the fastest arrived value of the promises
-    //Promise.  
+    //IMP! Promise.all will print all the value of the promises
+    //IMP! Promise.race will print only the fastest arrived value of the promises
+    //Promise.allSettled rejected or not return all the result 
+    //Promise.any return first fulfilled promised and drop rejected promises
         console.log(data);
     }catch(err){
         console.error(err);
@@ -227,7 +228,7 @@ const timeout = function(sec){
     return new Promise(function(_,reject){
         setTimeout(function(){
             reject(newError('request took too long'), sec*1000);
-        })
+        });
     })
 }
 get3Countries('portugal','canada','usa');
